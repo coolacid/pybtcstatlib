@@ -20,29 +20,6 @@ class bitcoinapi(object):
 	if debug == True:
 	    print message
 
-    def _grabapi(self, apipaths):
-	# This will attempt to grab the information using blockchain first, then blockexplorer.
-        sources = ['http://blockchain.info', 'http://blockexplorer.com']
-        urls = [''.join(t) for t in zip(sources, apipaths)]
-	# print urls
-        for url in urls:
-            try:
-		self._debug ("Getting: " + url)
-		user_agent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
-		headers = { 'User-Agent' : user_agent }
-		bitOpen = urllib2.Request(url, "", headers)
-		data = urllib2.urlopen(bitOpen).read()
-                #data = urlopen(url, timeout=5).read()
-		if data == '':
-		    self._debug ("Got a blank response")
-		    continue
-		self._debug ("Got: " + data)
-                return data
-            except Exception, e: 
-		self._debug (e)
-                continue
-        return None
-
     def get_blockbynum(self, block):
 	# get the hash for the current block
 	btchash = self.btcd.getblockhash(block)
@@ -141,7 +118,7 @@ class bitcoinapi(object):
 	if(actualtime>targettime*4):
 	    actualtime = targettime*4
 	a = float(oldtarget * actualtime)
-	# Divide result by the target (600*avg length+1)
+	# Divide result by the target
 	b = float(a / targettime)
 	# Div large number by result
 	nextdiff = float(26959535291011309493156476344723991336010898738574164086137773096960 / b)
@@ -153,7 +130,6 @@ class bitcoinapi(object):
 
     def get_difficulty(self):
 	# Current difficulty target as a decimal number
-
 	currentdiff = self.btcd.getinfo().difficulty
 	if currentdiff is None or currentdiff == '':
 	    self._debug ("Opps, there was an error, try later")
@@ -163,7 +139,7 @@ class bitcoinapi(object):
     def get_nextretarget(self):
 	# Block height of the next difficulty retarget
 	# get the current block
-	currentblock = self.btcd.getinfo().blocks
+	currentblock = self.get_currentblock()
 	mod = currentblock % 2016
 	nextretarget = currentblock + (2016 - mod)-1
 	if nextretarget is None or nextretarget == '':
