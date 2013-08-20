@@ -43,14 +43,16 @@ class bitcoinapi(object):
                 continue
         return None
 
-    def get_avgs(self, interval=10):
+    def get_blockbynum(self, block):
+	# get the hash for the current block
+	btchash = self.btcd.getblockhash(block)
+	# get the current blocks info
+	return self.btcd.getblock(btchash)
+
+    def get_avgs(self, interval=100):
 	# Average time between blocks in seconds
 	# get the current block
-	currentblock = self.btcd.getinfo().blocks
-	# get the hash for the current block
-	btchash = self.btcd.getblockhash(currentblock)
-	# get the current blocks info
-	currentblockinfo = self.btcd.getblock(btchash)
+	currentblockinfo = self.get_blockbynum(self.btcd.getinfo().blocks)
 	# self._debug(currentblockinfo.bits)
 	parenthash = currentblockinfo.previousblockhash
 	time = currentblockinfo.time
@@ -68,7 +70,7 @@ class bitcoinapi(object):
 	avgtarget = long((avgtarget + target) / 2.0)
 
 	for i in range(interval):
-	    print parenthash, time, lasttime-time, avgtime #, currentblockinfo.bits, avgtarget
+	    #print parenthash, time, lasttime-time, avgtime #, currentblockinfo.bits, avgtarget
 	    lasttime = time
 	    currentblockinfo = self.btcd.getblock(parenthash)
 	    parenthash = currentblockinfo.previousblockhash
@@ -101,7 +103,6 @@ class bitcoinapi(object):
 
     def get_currentblock(self):
 	# Current block height in the longest chain
-	#currentblock = self._grabapi(['/q/getblockcount']*2)
 	currentblock = self.btcd.getinfo().blocks
 	if currentblock is None or currentblock == '':
 	    self._debug ("Opps, there was an error, try later")
@@ -109,10 +110,9 @@ class bitcoinapi(object):
 	return float(currentblock)
 
     def get_hashrate(self):
-	# Estimated network hash rate in gigahash
-	#hashrate = self._grabapi(['/q/hashrate']*2)
+	# Estimated network hash rate
 
-	avgs = self.get_avgs(100)
+	avgs = self.get_avgs()
 	avgtarget = avgs.target
 	avgint = avgs.time
 
@@ -125,25 +125,33 @@ class bitcoinapi(object):
 	return long(hashrate)
 
     def get_nextdifficulty(self): # TODO
-	# Get the next difficulty (Only available from blockexplorer)
-	nextdiff = self._grabapi(['/q/estimate']*2)
+	# Multiply old difficulty by current avg time
+	currentblock = self.btcd.getinfo().blocks
+	actualtime = self.get_blockbynum(currentblock).time - self.get_blockbynum(currentblock - 2000).time
+	a = long(self._decodeCompat(int(self.get_blockbynum(currentblock-2000).bits,16))) * long(actualtime)
+	print actualtime
+	# Divide result by the target (600*avg length+1)
+	b = long(a / (600*2000))
+	print b
+	# Div large number by result
+	nextdiff = long(26959535291011309493156476344723991336010898738574164086137773096960 / b)
+
 	if nextdiff is None or nextdiff == '':
 	    self._debug ("Opps, there was an error, try later")
 	    return
-	return float(nextdiff)
+	return nextdiff
 
     def get_difficulty(self):
 	# Current difficulty target as a decimal number
-	#currentdiff = self._grabapi(['/q/getdifficulty']*2)
+
 	currentdiff = self.btcd.getinfo().difficulty
 	if currentdiff is None or currentdiff == '':
 	    self._debug ("Opps, there was an error, try later")
 	    return
 	return float(currentdiff)
 
-    def get_nextretarget(self): # TODO -- TEST
+    def get_nextretarget(self):
 	# Block height of the next difficulty retarget
-	#nextretarget = self._grabapi(['/q/nextretarget']*2)
 	# get the current block
 	currentblock = self.btcd.getinfo().blocks
 	mod = currentblock % 2016
@@ -151,7 +159,7 @@ class bitcoinapi(object):
 	if nextretarget is None or nextretarget == '':
 	    self._debug ("Opps, there was an error, try later")
 	    return
-	return float(nextretarget)
+	return nextretarget
 
     def stat_hash(self):
 	# Hash Stats
@@ -211,7 +219,7 @@ if __name__ == "__main__":
 #    print btcapi.get_nextretarget()	#-- WORKS
 #    print btcapi.get_avgtime()		#-- Happy
 #    print btcapi.get_hashrate()	#-- Happy
-#    print btcapi.get_nextdifficulty()	#-- NOT CODED
+    print btcapi.get_nextdifficulty()	#-- NOT CODED
 #    print btcapi.stat_hash()
 #    print btcapi.stat_diff()
 #    print btcapi.stat_estimate (100)
