@@ -107,7 +107,11 @@ class bitcoinapi(object):
 	if currentblock is None or currentblock == '':
 	    self._debug ("Opps, there was an error, try later")
 	    return
-	return float(currentblock)
+	return currentblock
+
+    def get_lastretarget(self):
+	blockcount = self.get_currentblock();
+	return (blockcount-(blockcount%2016))-1
 
     def get_hashrate(self):
 	# Estimated network hash rate
@@ -126,15 +130,21 @@ class bitcoinapi(object):
 
     def get_nextdifficulty(self): # TODO
 	# Multiply old difficulty by current avg time
-	currentblock = self.btcd.getinfo().blocks
-	actualtime = self.get_blockbynum(currentblock).time - self.get_blockbynum(currentblock - 2000).time
-	a = long(self._decodeCompat(int(self.get_blockbynum(currentblock-2000).bits,16))) * long(actualtime)
-	print actualtime
+	currentblock = self.get_currentblock()
+	lastblock = self.get_lastretarget()+1
+	targettime = 600*(currentblock-lastblock+1)
+
+	actualtime = self.get_blockbynum(currentblock).time - self.get_blockbynum(lastblock).time
+	oldtarget = self._decodeCompat(int(self.get_blockbynum(lastblock).bits,16))
+	if(actualtime<targettime/4):
+	    actualtime = targettime/4
+	if(actualtime>targettime*4):
+	    actualtime = targettime*4
+	a = float(oldtarget * actualtime)
 	# Divide result by the target (600*avg length+1)
-	b = long(a / (600*2000))
-	print b
+	b = float(a / targettime)
 	# Div large number by result
-	nextdiff = long(26959535291011309493156476344723991336010898738574164086137773096960 / b)
+	nextdiff = float(26959535291011309493156476344723991336010898738574164086137773096960 / b)
 
 	if nextdiff is None or nextdiff == '':
 	    self._debug ("Opps, there was an error, try later")
@@ -219,9 +229,9 @@ if __name__ == "__main__":
 #    print btcapi.get_nextretarget()	#-- WORKS
 #    print btcapi.get_avgtime()		#-- Happy
 #    print btcapi.get_hashrate()	#-- Happy
-    print btcapi.get_nextdifficulty()	#-- NOT CODED
+#    print btcapi.get_nextdifficulty()	#-- NOT CODED
 #    print btcapi.stat_hash()
-#    print btcapi.stat_diff()
+    print btcapi.stat_diff()
 #    print btcapi.stat_estimate (100)
 #    print btcapi.stat_estimate (100, 118.4)
 
