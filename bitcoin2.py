@@ -10,7 +10,7 @@ class BTCAvgs:
 class bitcoinapi(object):
     def __init__(self, user, password, server="127.0.0.1", port="8332"):
 	# self.btcd = AuthServiceProxy("http://" + user + ":" + password + "@127.0.0.1:8332")
-	self.btcd = bitcoinrpc.connect_to_local()
+	self.btcd = bitcoinrpc.connect_to_remote(user, password, server, port, False)
 
     def _decodeCompat(self, bits):
 	nbytes = (bits >> 24) & 0xFF
