@@ -1,7 +1,6 @@
 #! /usr/bin/env python
 
-from urllib2 import urlopen
-import json, bitcoinrpc
+import json, bitcoinrpc, urllib2
 
 debug = True
 
@@ -55,23 +54,33 @@ class bitcoinapi(object):
 	# self._debug(currentblockinfo.bits)
 	parenthash = currentblockinfo.previousblockhash
 	time = currentblockinfo.time
-	avgtime = 0
 
 	target = self._decodeCompat(int(currentblockinfo.bits, 16))
 	avgtarget = target
 
+	lasttime = time
+	currentblockinfo = self.btcd.getblock(parenthash)
+	parenthash = currentblockinfo.previousblockhash
+	time = currentblockinfo.time
+	avgtime = long(lasttime - time)
+
+	target = self._decodeCompat(int(currentblockinfo.bits, 16))
+	avgtarget = long((avgtarget + target) / 2.0)
+
 	for i in range(interval):
-	    print parenthash, time, avgtime, currentblockinfo.bits, avgtarget
+	    print parenthash, time, lasttime-time, avgtime #, currentblockinfo.bits, avgtarget
 	    lasttime = time
 	    currentblockinfo = self.btcd.getblock(parenthash)
 	    parenthash = currentblockinfo.previousblockhash
 	    time = currentblockinfo.time
-	    avgtime = long((avgtime + (lasttime - time)) / 2)
+	    avgtime = long(avgtime + (lasttime - time))
 
 	    target = self._decodeCompat(int(currentblockinfo.bits, 16))
 	    avgtarget = long((avgtarget + target) / 2.0)
 
 	# get "time" for the last x blocks (using frp, getblock previousblockhash )
+
+	avgtime = avgtime / (interval+1)
 
 	if avgtarget is None or avgtarget == '':
 	    self._debug ("Opps, there was an error, try later")
@@ -86,7 +95,7 @@ class bitcoinapi(object):
 	avgs.target = avgtarget
 	return avgs
 
-    def get_interval(self, interval=100):
+    def get_avgtime(self, interval=100):
 	avgs = self.get_avgs(interval)
 	return avgs.time
 
@@ -103,13 +112,13 @@ class bitcoinapi(object):
 	# Estimated network hash rate in gigahash
 	#hashrate = self._grabapi(['/q/hashrate']*2)
 
-	avgs = self.get_avgs()
+	avgs = self.get_avgs(100)
 	avgtarget = avgs.target
 	avgint = avgs.time
 
 	hashestowin = long(1/(float(avgtarget)/115792089237316195423570985008687907853269984665640564039457584007913129639935))
-	print hashestowin
 	hashrate = long(hashestowin / avgint)
+	print hashestowin,",",avgint,",",hashrate
 	if hashrate is None or hashrate == '':
 	    self._debug ("Opps, there was an error, try later")
 	    return
@@ -146,7 +155,7 @@ class bitcoinapi(object):
 
     def stat_hash(self):
 	# Hash Stats
-	currentint = self.get_interval()
+	currentint = self.get_avgtime()
 	currentblock = self.get_currentblock()
 	hashrate = self.get_hashrate()
 
@@ -164,7 +173,7 @@ class bitcoinapi(object):
 	currentblock = self.get_currentblock()
 	nextdiff = self.get_nextdifficulty()
 	currentdiff = self.get_difficulty()
-	currentint = self.get_interval()
+	currentint = self.get_avgtime()
 
 	if nextretarget is None or currentblock is None or nextdiff is None or currentdiff is None or currentint is None:
 	    return "There was an error, please try again later"
@@ -200,8 +209,8 @@ if __name__ == "__main__":
 #    print btcapi.get_currentblock()	#-- WORKS
 #    print btcapi.get_difficulty()	#-- WORKS
 #    print btcapi.get_nextretarget()	#-- WORKS
-#    print btcapi.get_interval(20)	#-- Close
-    print btcapi.get_hashrate()		#-- Close
+#    print btcapi.get_avgtime()		#-- Happy
+#    print btcapi.get_hashrate()	#-- Happy
 #    print btcapi.get_nextdifficulty()	#-- NOT CODED
 #    print btcapi.stat_hash()
 #    print btcapi.stat_diff()

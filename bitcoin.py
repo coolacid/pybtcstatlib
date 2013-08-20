@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-from urllib2 import urlopen
+import urllib2 
 
 debug = False
 
