@@ -7,6 +7,8 @@ Running the file should produce simple results.
 bitcoin.py - Pulls data from API sources
 bitcoin2.py - Pulls data from Bitcoind
 
+bitcoin2.py makes use of: https://github.com/laanwj/bitcoin-python
+
 Please Support: 1DawBdois5GkteqbHrUkA5syYX4Xs2NFd4
 
 If you use the Lib, please, let me know in a ticket ;)
