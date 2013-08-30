@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-import json, bitcoinrpc, urllib2
+import json, bitcoinrpc, urllib2, shelve
 
 debug = True
 
@@ -8,8 +8,9 @@ class BTCAvgs:
     pass
 
 class bitcoinapi(object):
-    def __init__(self, user, password, server="127.0.0.1", port="8332"):
+    def __init__(self, user, password, server="127.0.0.1", port="8332", shelvefile="/tmp/pybtlib"):
 	# self.btcd = AuthServiceProxy("http://" + user + ":" + password + "@127.0.0.1:8332")
+	self.shelve = shelve.open(shelvefile)
 	self.btcd = bitcoinrpc.connect_to_remote(user, password, server, port, False)
 
     def _decodeCompat(self, bits):
@@ -20,11 +21,20 @@ class bitcoinapi(object):
 	if debug == True:
 	    print message
 
+    def get_blockbyhash(self, hash):
+	# Need to implement some kind of cache here as this takes the longest to query
+	if (self.shelve.has_key(hash.encode("UTF-8"))):
+	    return self.shelve[hash.encode("UTF-8")]
+	else:
+	    block = self.btcd.getblock(hash)
+	    self.shelve[hash.encode("UTF-8")] = block
+	return block
+
     def get_blockbynum(self, block):
 	# get the hash for the current block
 	btchash = self.btcd.getblockhash(block)
 	# get the current blocks info
-	return self.btcd.getblock(btchash)
+	return self.get_blockbyhash(btchash)
 
     def get_avgs(self, interval=100):
 	# Average time between blocks in seconds
@@ -38,7 +48,7 @@ class bitcoinapi(object):
 	avgtarget = target
 
 	lasttime = time
-	currentblockinfo = self.btcd.getblock(parenthash)
+	currentblockinfo = self.get_blockbyhash(parenthash)
 	parenthash = currentblockinfo.previousblockhash
 	time = currentblockinfo.time
 	avgtime = long(lasttime - time)
@@ -49,7 +59,7 @@ class bitcoinapi(object):
 	for i in range(interval):
 	    #print parenthash, time, lasttime-time, avgtime #, currentblockinfo.bits, avgtarget
 	    lasttime = time
-	    currentblockinfo = self.btcd.getblock(parenthash)
+	    currentblockinfo = self.get_blockbyhash(parenthash)
 	    parenthash = currentblockinfo.previousblockhash
 	    time = currentblockinfo.time
 	    avgtime = long(avgtime + (lasttime - time))
@@ -198,7 +208,7 @@ class bitcoinapi(object):
 
 
 if __name__ == "__main__":
-    btcapi = bitcoinapi("bitcoinrpc", "43iVCZkbcftfZthwqnRfKJM6nkz9CYGcgKoGkTo2TY7z")
+    btcapi = bitcoinapi("bitcoinrpc", "43iVCZkbcftfZthwqnRfKJM6nkz9CYGcgKoGkTo2TY7z", shelvefile="./tmpfile")
     # Unit tests
 #    print btcapi.get_currentblock()	#-- WORKS
 #    print btcapi.get_difficulty()	#-- WORKS
