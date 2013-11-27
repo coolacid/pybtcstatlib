@@ -14,7 +14,11 @@ bitcoin2.py - Pulls data from Bitcoind
 - Most of the calculations comes from https://github.com/lirazsiri/blockexplorer/blob/master/htdocs/includes/app_stats.inc
 
 btcexchange.py - Query data from different exchanges
+- Call the ticker with (exchange, market)
+- It does some internal fixes of markets based on the exchange
+
 ticker.py - Simple PyQt Ticker
+- Needs work, first Qt Python script
 
 Please Support: 1DawBdois5GkteqbHrUkA5syYX4Xs2NFd4
 
