@@ -13,6 +13,9 @@ bitcoin2.py - Pulls data from Bitcoind
 - bitcoin2.py makes use of: https://github.com/laanwj/bitcoin-python
 - Most of the calculations comes from https://github.com/lirazsiri/blockexplorer/blob/master/htdocs/includes/app_stats.inc
 
+btcexchange.py - Query data from different exchanges
+ticker.py - Simple PyQt Ticker
+
 Please Support: 1DawBdois5GkteqbHrUkA5syYX4Xs2NFd4
 
-If you use the Lib, please, let me know in an "issue" ;)
+If you use any Lib, please, let me know in an "issue" ;)
