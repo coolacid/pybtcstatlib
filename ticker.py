@@ -16,19 +16,24 @@ class SimpleTicker(QtGui.QWidget):
 	
     def initUI(self):
 	i=0
-	spacing = 10
-        self.resize(250, 50)
+	spacing = 25
         self.center()
         self.setWindowTitle('Simple Ticker')
+	font = QtGui.QFont()
+	font.setPointSize(20)
 
 	for exchange in self.exchanges:
 	    self.Label.append(QtGui.QLabel("%s (%s):" % (exchange[0], exchange[1]), self))
 	    self.Value.append(QtGui.QLabel("0", self))
 	    self.OValue.append(0)
 	    self.Label[i].move (15, 5+(i*spacing))
-	    self.Value[i].move (150,5+(i*spacing))
+	    self.Value[i].move (250,5+(i*spacing))
+	    self.Label[i].setFont(font)
+	    self.Value[i].setFont(font)
 	    self.Value[i].setFixedWidth(200)
 	    i += 1
+
+        self.resize(400, 22+(i*22))
 	self.show()
 
 	self.updateTickers()
