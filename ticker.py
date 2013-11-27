@@ -5,9 +5,10 @@ from btcexchange import *
 from PyQt4 import QtGui, QtCore
 
 class SimpleTicker(QtGui.QWidget):
-    def __init__(self, exchanges):
+    def __init__(self, exchanges, updatespeed):
         super(SimpleTicker, self).__init__()
 	self.exchanges = exchanges
+	self.updatespeed = updatespeed
 	self.Label = []
 	self.Value = []
 	self.OValue = []
@@ -43,7 +44,7 @@ class SimpleTicker(QtGui.QWidget):
 	RED = QtGui.QPalette()
 	RED.setColor(QtGui.QPalette.Foreground,QtCore.Qt.red)
 	GREEN = QtGui.QPalette()
-	GREEN.setColor(QtGui.QPalette.Foreground,QtCore.Qt.green)
+	GREEN.setColor(QtGui.QPalette.Foreground,QtCore.Qt.darkGreen)
 
 	print "TICK"
 	for exchange in self.exchanges:
@@ -57,7 +58,7 @@ class SimpleTicker(QtGui.QWidget):
 	    self.Value[i].setText("%.2f" % LValue)
 	    self.OValue[i] = LValue
 	    i += 1
-	QtCore.QTimer.singleShot(5000,self.updateTickers)
+	QtCore.QTimer.singleShot(self.updatespeed*1000,self.updateTickers)
 
     def center(self):
         qr = self.frameGeometry()
@@ -75,12 +76,12 @@ class SimpleTicker(QtGui.QWidget):
         else:
             event.ignore()  
 
-def main(exchanges):
+def main(exchanges, updatespeed):
     app = QtGui.QApplication(sys.argv)
-    ex = SimpleTicker(exchanges)
+    ex = SimpleTicker(exchanges,updatespeed)
     sys.exit(app.exec_())
 
 
 if __name__ == '__main__':
     exchanges = [["GOX", "BTCUSD"],["BFX", "BTCUSD"],["BFX", "LTCUSD"]]
-    main(exchanges)
+    main(exchanges, 60)
