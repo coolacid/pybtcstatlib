@@ -19,6 +19,7 @@ btcexchange.py - Query data from different exchanges
 
 ticker.py - Simple PyQt Ticker
 - Needs work, first Qt Python script
+- See ticker.cfg for example config
 
 Please Support: 1DawBdois5GkteqbHrUkA5syYX4Xs2NFd4
 

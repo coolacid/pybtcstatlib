@@ -48,7 +48,11 @@ class SimpleTicker(QtGui.QWidget):
 
 	print "TICK"
 	for exchange in self.exchanges:
-	    Value = self.ex.Ticker(exchange[0], exchange[1])
+	    try:
+		Value = self.ex.Ticker(exchange[0], exchange[1])
+	    except:
+		print "GET Failed"
+		continue
 	    LValue = float(Value["Last"])
 	    print "%s-%s: %.2f" % (exchange[0], exchange[1], LValue)
 	    if LValue < self.OValue[i]:
@@ -83,5 +87,11 @@ def main(exchanges, updatespeed):
 
 
 if __name__ == '__main__':
-    exchanges = [["GOX", "BTCUSD"],["BFX", "BTCUSD"],["BFX", "LTCUSD"]]
+    #exchanges = [["GOX", "BTCUSD"],["BFX", "BTCUSD"],["BFX", "LTCUSD"]]
+    conf = open("ticker.cfg", "r")
+    exchanges = []
+    for line in conf:
+	exchanges.append (line.strip().split("/"))
+    conf.close
+    print exchanges
     main(exchanges, 60)
