@@ -41,6 +41,10 @@ class BTCExchange():
 	    else:
 		raise BTCEError("Invalid Ticker")
 	elif (exchange.upper() == "BSTP"):
+	    if ticker in self.Tickers["BSTP"]:
+		url = self.BSTPURL 
+	    else:
+		raise BTCEError("Invalid Ticker")
 		url = self.BSTPURL
 	else:
 	    raise BTCEError("Invalid Exchange: %s" % exchange)
@@ -89,9 +93,9 @@ class BTCExchange():
 
 def main():
     ex = BTCExchange()
-    ex.test()
-#    value = ex.Ticker("BSTP", "USD")
-#    print "%.2f" % value['Last']
+#    ex.test()
+    value = ex.Ticker("BSTP", "EUR")
+    print "%.2f" % value['Last']
 
 if __name__ == '__main__':
     main()
