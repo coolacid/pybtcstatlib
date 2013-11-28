@@ -4,6 +4,7 @@ import urllib2, json
 
 class BTCEError(Exception):
     def __init__(self, value):
+	self.value = value
 	print "BTCExchangeError: %s" % value
 
 class BTCExchange():
