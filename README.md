@@ -21,6 +21,8 @@ ticker.py - Simple PyQt Ticker
 - Needs work, first Qt Python script
 - See ticker.cfg for example config
 
-Please Support: 1DawBdois5GkteqbHrUkA5syYX4Xs2NFd4
+Please Support: 
+BTC: 1DawBdois5GkteqbHrUkA5syYX4Xs2NFd4
+LTC: LfgTr3TUFm8jMFXmwVk26vQWrQK8rNMwJN
 
 If you use any Lib, please, let me know in an "issue" ;)
