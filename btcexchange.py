@@ -15,10 +15,10 @@ class BTCExchange():
 	self.BSTPURL = "https://www.bitstamp.net/api/ticker/"
 	self.BTCeURL = "https://btc-e.com/api/2/%s/ticker"
 	self.Tickers = {
-	    "GOX": ["BTCUSD", "BTCEUR"],
-	    "BFX": ["BTCUSD", "LTCUSD"],
+	    "GOX": ["BTCUSD", "BTCEUR", "BTCCAD"],
+	    "BFX": ["BTCUSD", "LTCUSD", "LTCBTC"],
 	    "BSTP": ["BTCUSD"],
-	    "BTCe": ["BTCUSD", "LTCUSD"],
+	    "BTCe": ["BTCUSD", "LTCUSD", "BTCEUR", "LTCBTC", "LTCEUR"],
 	}
 
     def Ticker(self, exchange, ticker):
@@ -48,9 +48,12 @@ class BTCExchange():
 		url = self.BSTPURL
 	else:
 	    raise BTCEError("Invalid Exchange: %s" % exchange)
-	req = urllib2.Request(url)
-	res = urllib2.urlopen(req)
-	result = json.load(res)
+	try:
+	    req = urllib2.Request(url)
+	    res = urllib2.urlopen(req)
+	    result = json.load(res)
+	except:
+	    raise BTCEError("Failed Receiving Ticker")
 	if (exchange.upper() == "GOX"):
 	    Value={
 		"Last": float(result['return']['buy']['value']),
@@ -89,13 +92,19 @@ class BTCExchange():
 	for exchange in self.exchanges:
 	    for ticker in self.Tickers[exchange]:
 		print exchange, ticker
-		print self.Ticker(exchange, ticker)
+		try:
+		    print self.Ticker(exchange, ticker)
+		except BTCEError as e:
+		    print "Error: %s" %e.value
+		    continue
+		except:
+		    continue
 
 def main():
     ex = BTCExchange()
-#    ex.test()
-    value = ex.Ticker("BSTP", "EUR")
-    print "%.2f" % value['Last']
+    ex.test()
+#    value = ex.Ticker("BSTP", "EUR")
+#    print "%.2f" % value['Last']
 
 if __name__ == '__main__':
     main()
