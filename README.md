@@ -22,7 +22,7 @@ ticker.py - Simple PyQt Ticker
 - See ticker.cfg for example config
 
 Please Support: 
-BTC: 1DawBdois5GkteqbHrUkA5syYX4Xs2NFd4
-LTC: LfgTr3TUFm8jMFXmwVk26vQWrQK8rNMwJN
+- BTC: 1DawBdois5GkteqbHrUkA5syYX4Xs2NFd4
+- LTC: LfgTr3TUFm8jMFXmwVk26vQWrQK8rNMwJN
 
 If you use any Lib, please, let me know in an "issue" ;)
