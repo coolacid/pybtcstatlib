@@ -11,7 +11,7 @@ class BTCExchange():
     def __init__(self):
 	self.exchanges = ["GOX", "BFX", "BTCe", "BSTP"]
 	self.MtGoxURL = "http://data.mtgox.com/api/1/%s/ticker"
-	self.BFXURL = "https://api.bitfinex.com/v1/ticker/%s"
+	self.BFXURL = "https://api.bitfinex.com/v1/%s/%s"
 	self.BSTPURL = "https://www.bitstamp.net/api/ticker/"
 	self.BTCeURL = "https://btc-e.com/api/2/%s/ticker"
 	self.Tickers = {
@@ -31,7 +31,7 @@ class BTCExchange():
 		raise BTCEError("Invalid Ticker")
 	elif (exchange.upper() == "BFX"):
 	    if ticker in self.Tickers["BFX"]:
-		url = self.BFXURL % ticker.lower()
+		url = self.BFXURL % ("ticker", ticker.lower())
 	    else:
 		raise BTCEError("Invalid Ticker")
 	elif (exchange.upper() == "BTCE"):
@@ -88,6 +88,34 @@ class BTCExchange():
 	    }
 	return Value
 
+    def Orders(self, exchange, ticker, since=0):
+	Value=[]
+	if len(ticker) == 3:
+	    ticker = "BTC%s" % ticker
+	if (exchange.upper() == "BFX"):
+	    if ticker in self.Tickers["BFX"]:
+		if (since > 0):
+		    ts = "?timestamp=%d" % int(since)
+		url = self.BFXURL % ("trades", ticker.lower()) + ts
+	    else:
+		raise BTCEError("Invalid Ticker")
+	try:
+	    req = urllib2.Request(url)
+	    res = urllib2.urlopen(req)
+	    results = json.load(res)
+	except:
+	    raise BTCEError("Failed Receiving Ticker")
+	if (exchange.upper() == "BFX"):
+	    for result in results:
+		Value.append({
+		    "Timestamp": int(result["timestamp"]),
+		    "Price": float(result["price"]),
+		    "Amount": float(result["amount"]),
+		    "Exchange": result["exchange"],
+		})
+	    Value = reversed(Value)
+	return Value
+
     def test(self):
 	for exchange in self.exchanges:
 	    for ticker in self.Tickers[exchange]:
@@ -102,8 +130,9 @@ class BTCExchange():
 
 def main():
     ex = BTCExchange()
-    ex.test()
-#    value = ex.Ticker("BSTP", "EUR")
+#    ex.test()
+    value = ex.Orders("BFX", "USD", 1385693109)
+    print value
 #    print "%.2f" % value['Last']
 
 if __name__ == '__main__':
