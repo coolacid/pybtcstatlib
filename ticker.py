@@ -2,7 +2,7 @@
 
 import sys, time
 from btcexchange import *
-from PyQt4 import QtGui, QtCore
+from PyQt4 import QtCore, QtGui
 
 class SimpleTicker(QtGui.QWidget):
     def __init__(self, exchanges, updatespeed):
@@ -52,6 +52,7 @@ class SimpleTicker(QtGui.QWidget):
 		Value = self.ex.Ticker(exchange[0], exchange[1])
 	    except:
 		print "GET Failed"
+		i += 1
 		continue
 	    LValue = float(Value["Last"])
 	    print "%s-%s: %.2f" % (exchange[0], exchange[1], LValue)
