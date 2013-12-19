@@ -9,6 +9,7 @@ class BTCEError(Exception):
 
 class BTCExchange():
     def __init__(self):
+	self.headers = { 'User-Agent' : 'Mozilla/5.0 - https://github.com/coolacid/pybtcstatlib' }
 	self.exchanges = ["GOX", "BFX", "BTCe", "BSTP"]
 	self.MtGoxURL = "http://data.mtgox.com/api/1/%s/ticker"
 	self.BFXURL = "https://api.bitfinex.com/v1/%s/%s"
@@ -49,9 +50,11 @@ class BTCExchange():
 	else:
 	    raise BTCEError("Invalid Exchange: %s" % exchange)
 	try:
-	    req = urllib2.Request(url)
+	    req = urllib2.Request(url, None, self.headers)
 	    res = urllib2.urlopen(req)
 	    result = json.load(res)
+	except urllib2.URLError, e:
+	    raise BTCEError("Failed Receiving Ticker (%s): %s" % (url, str(e.reason)))
 	except:
 	    raise BTCEError("Failed Receiving Ticker")
 	if (exchange.upper() == "GOX"):
@@ -100,11 +103,13 @@ class BTCExchange():
 	    else:
 		raise BTCEError("Invalid Ticker")
 	try:
-	    req = urllib2.Request(url)
+	    req = urllib2.Request(url, None, self.headers)
 	    res = urllib2.urlopen(req)
 	    results = json.load(res)
+	except urllib2.URLError, e:
+	    raise BTCEError("Failed Receiving Ticker (%s): %s" % (url, str(e.reason)))
 	except:
-	    raise BTCEError("Failed Receiving Ticker")
+	    raise BTCEError("Failed Receiving Ticker: Other")
 	if (exchange.upper() == "BFX"):
 	    for result in results:
 		Value.append({
@@ -131,7 +136,8 @@ class BTCExchange():
 def main():
     ex = BTCExchange()
 #    ex.test()
-    value = ex.Orders("BFX", "USD", 1385693109)
+    value = ex.Ticker("BFX", "USD")
+#    value = ex.Orders("BFX", "USD", 1385693109)
     print value
 #    print "%.2f" % value['Last']
 
