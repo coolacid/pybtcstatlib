@@ -23,7 +23,7 @@ class BTCExchange():
 	    "BSTP": ["BTCUSD"],
 	    "BTCe": ["BTCUSD", "LTCUSD", "BTCEUR", "LTCBTC", "LTCEUR"],
 	    "CYPT": ["BTCUSD", "BTCEUR", "LTCUSD", "LTCBTC", "LTCEUR"],
-	    "KRAK": ["LTCUSD", "LTCEUR"],
+	    "KRAK": ["BTCUSD", "BTCEUR", "LTCUSD", "BTCLTC", "LTCEUR"], #Note LTC/BTC is backward here!
 	}
 
     def Ticker(self, exchange, ticker):
@@ -58,6 +58,8 @@ class BTCExchange():
 		raise BTCEError("Invalid Ticker")
 	elif (exchange.upper() == "KRAK"):
 	    if ticker in self.Tickers["KRAK"]:
+		if (ticker[:3] == "BTC"):
+		    ticker = "XBT%s" % ticker[3:]
 		url = self.KrakURL % ticker.lower()
 	    else:
 		raise BTCEError("Invalid Ticker")
@@ -168,7 +170,7 @@ class BTCExchange():
 def main():
     ex = BTCExchange()
 #    ex.test()
-    value = ex.Ticker("KRAK", "LTCUSD")
+    value = ex.Ticker("KRAK", "LTCBTC")
 #    value = ex.Orders("BFX", "USD", 1385693109)
     print value
 #    print "%.2f" % value['Last']
