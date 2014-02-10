@@ -10,7 +10,7 @@ class BTCEError(Exception):
 class BTCExchange():
     def __init__(self):
 	self.headers = { 'User-Agent' : 'Mozilla/5.0 - https://github.com/coolacid/pybtcstatlib' }
-	self.exchanges = ["GOX", "BFX", "BTCe", "BSTP"]
+	self.exchanges = ["GOX", "BFX", "BTCe", "BSTP", "CYPT", "KRAK"]
 	self.MtGoxURL = "http://data.mtgox.com/api/1/%s/ticker"
 	self.BFXURL = "https://api.bitfinex.com/v1/%s/%s"
 	self.BSTPURL = "https://www.bitstamp.net/api/ticker/"
