@@ -15,11 +15,15 @@ class BTCExchange():
 	self.BFXURL = "https://api.bitfinex.com/v1/%s/%s"
 	self.BSTPURL = "https://www.bitstamp.net/api/ticker/"
 	self.BTCeURL = "https://btc-e.com/api/2/%s/ticker"
+	self.CyptURL = "https://crypto-trade.com/api/1/ticker/%s"
+	self.KrakURL = "https://api.kraken.com/0/public/Ticker?pair=%s"
 	self.Tickers = {
 	    "GOX": ["BTCUSD", "BTCEUR", "BTCCAD"],
 	    "BFX": ["BTCUSD", "LTCUSD", "LTCBTC"],
 	    "BSTP": ["BTCUSD"],
 	    "BTCe": ["BTCUSD", "LTCUSD", "BTCEUR", "LTCBTC", "LTCEUR"],
+	    "CYPT": ["BTCUSD", "BTCEUR", "LTCUSD", "LTCBTC", "LTCEUR"],
+	    "KRAK": ["LTCUSD", "LTCEUR"],
 	}
 
     def Ticker(self, exchange, ticker):
@@ -46,7 +50,17 @@ class BTCExchange():
 		url = self.BSTPURL 
 	    else:
 		raise BTCEError("Invalid Ticker")
-		url = self.BSTPURL
+	elif (exchange.upper() == "CYPT"):
+	    if ticker in self.Tickers["CYPT"]:
+		ticker = ticker[:3] + "_" + ticker[3:]
+		url = self.CyptURL % ticker.lower()
+	    else:
+		raise BTCEError("Invalid Ticker")
+	elif (exchange.upper() == "KRAK"):
+	    if ticker in self.Tickers["KRAK"]:
+		url = self.KrakURL % ticker.lower()
+	    else:
+		raise BTCEError("Invalid Ticker")
 	else:
 	    raise BTCEError("Invalid Exchange: %s" % exchange)
 	try:
@@ -89,6 +103,24 @@ class BTCExchange():
 		"High": float(result["high"]),
 		"Low": float(result["low"])
 	    }
+	elif (exchange.upper() == "CYPT"):
+	    Value={
+		"Last": float(result["data"]["last"]),
+		"Buy": float(result["data"]["max_bid"]),
+		"Sell": float(result["data"]["min_ask"]),
+		"High": float(result["data"]["high"]),
+		"Low": float(result["data"]["low"])
+	    }
+	elif (exchange.upper() == "KRAK"):
+	    key = list(result["result"])[0]
+	    Value={
+		"Last": float(result["result"][key]["c"][0]),
+		"Buy": float(result["result"][key]["a"][0]),
+		"Sell": float(result["result"][key]["b"][0]),
+		"High": float(result["result"][key]["h"][0]),
+		"Low": float(result["result"][key]["l"][0])
+	    }
+
 	return Value
 
     def Orders(self, exchange, ticker, since=0):
@@ -136,7 +168,7 @@ class BTCExchange():
 def main():
     ex = BTCExchange()
 #    ex.test()
-    value = ex.Ticker("BFX", "USD")
+    value = ex.Ticker("KRAK", "LTCUSD")
 #    value = ex.Orders("BFX", "USD", 1385693109)
     print value
 #    print "%.2f" % value['Last']
