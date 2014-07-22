@@ -10,20 +10,21 @@ class BTCEError(Exception):
 class BTCExchange():
     def __init__(self):
 	self.headers = { 'User-Agent' : 'Mozilla/5.0 - https://github.com/coolacid/pybtcstatlib' }
-	self.exchanges = ["GOX", "BFX", "BTCe", "BSTP", "CYPT", "KRAK"]
+	self.exchanges = ["BFX", "BTCe", "BSTP", "CYPT", "KRAK", "BTCA"]
 	self.MtGoxURL = "http://data.mtgox.com/api/1/%s/ticker"
 	self.BFXURL = "https://api.bitfinex.com/v1/%s/%s"
 	self.BSTPURL = "https://www.bitstamp.net/api/ticker/"
 	self.BTCeURL = "https://btc-e.com/api/2/%s/ticker"
 	self.CyptURL = "https://crypto-trade.com/api/1/ticker/%s"
 	self.KrakURL = "https://api.kraken.com/0/public/Ticker?pair=%s"
+	self.BTCaURL = "https://api.bitcoinaverage.com/ticker/global/%s/"
 	self.Tickers = {
-	    "GOX": ["BTCUSD", "BTCEUR", "BTCCAD"],
 	    "BFX": ["BTCUSD", "LTCUSD", "LTCBTC"],
 	    "BSTP": ["BTCUSD"],
 	    "BTCe": ["BTCUSD", "LTCUSD", "BTCEUR", "LTCBTC", "LTCEUR"],
 	    "CYPT": ["BTCUSD", "BTCEUR", "LTCUSD", "LTCBTC", "LTCEUR"],
 	    "KRAK": ["BTCUSD", "BTCEUR", "LTCUSD", "BTCLTC", "LTCEUR"], #Note LTC/BTC is backward here!
+	    "BTCA": ["BTCUSD", "BTCEUR", "BTCCAD"],
 	}
 
     def Ticker(self, exchange, ticker):
@@ -61,6 +62,11 @@ class BTCExchange():
 		if (ticker[:3] == "BTC"):
 		    ticker = "XBT%s" % ticker[3:]
 		url = self.KrakURL % ticker.lower()
+	    else:
+		raise BTCEError("Invalid Ticker")
+	elif (exchange.upper() == "BTCA"):
+	    if ticker in self.Tickers["BTCA"]:
+		url = self.BTCaURL % ticker[3:].upper()
 	    else:
 		raise BTCEError("Invalid Ticker")
 	else:
@@ -122,6 +128,14 @@ class BTCExchange():
 		"High": float(result["result"][key]["h"][0]),
 		"Low": float(result["result"][key]["l"][0])
 	    }
+	elif (exchange.upper() == "BTCA"):
+	    Value={
+		"Last": float(result["last"]),
+		"Buy": float(result["bid"]),
+		"Sell": float(result["ask"]),
+		"High": 0.00,
+		"Low": 0.00
+	    }
 
 	return Value
 
@@ -170,7 +184,7 @@ class BTCExchange():
 def main():
     ex = BTCExchange()
 #    ex.test()
-    value = ex.Ticker("KRAK", "LTCBTC")
+    value = ex.Ticker("BTCa", "BTCUSD")
 #    value = ex.Orders("BFX", "USD", 1385693109)
     print value
 #    print "%.2f" % value['Last']
